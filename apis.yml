@@ -1,0 +1,54 @@
+name: Geoloods
+description: >-
+  A place-search and geocoding API that resolves named places (cities, towns, villages, parks, landmarks) to coordinates
+  and rich location metadata over JSON/HTTPS. Covers 6.5M+ named places across 195 countries with coordinates, timezone,
+  population, and country metadata. Agent-aware with machine signup and llms.txt index.
+url: https://raw.githubusercontent.com/api-evangelist/geoloods/refs/heads/main/apis.yml
+created: '2026-09-20'
+modified: '2026-09-20'
+specificationVersion: '0.21'
+tags:
+  - geocoding
+  - place-search
+  - location
+  - coordinates
+  - mapping
+  - geospatial
+  - agents
+  - openapi
+  - llms-txt
+apis:
+  - name: Geoloods API
+    description: >-
+      REST place-search and geocoding API (search, reverse geocode, nearby, bbox, countries). API-key authenticated via
+      X-API-Key header or api_key query param. Includes an unauthenticated machine agent-onboarding endpoint issuing
+      trial keys.
+    humanURL: https://geoloods.io/docs
+    baseURL: https://api.geoloods.io/v2/
+    tags:
+      - geocoding
+      - place-search
+      - location
+      - coordinates
+      - mapping
+      - geospatial
+      - agents
+      - openapi
+      - llms-txt
+    properties:
+      - type: OpenAPI
+        url: https://geoloods.io/openapi.json
+      - type: Documentation
+        url: https://geoloods.io/docs
+      - type: LLMsTxt
+        url: https://geoloods.io/llms.txt
+      - type: LLMsTxt
+        url: https://geoloods.io/llms-full.txt
+maintainers:
+  - FN: Sjoerd
+    url: mailto:sjoerd@geoloods.io
+generated:
+  by: apis.io/add
+  model: claude-opus-4-8
+  confidence: 95
+  at: '2026-09-20T12:49:58.126Z'
