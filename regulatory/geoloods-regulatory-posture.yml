@@ -1,0 +1,53 @@
+generated: '2026-09-20'
+method: searched
+source: >-
+  https://geoloods.io/privacy + https://geoloods.io/terms (live, 200). Horizontal regulatory-posture
+  harvest only — no inference that any regime applies; that is decided by the Kin Score regime map.
+summary: >-
+  A small geocoding SaaS. The published privacy policy documents GDPR data-subject rights with a dedicated
+  privacy contact — a real DataSubjectRequest signal. Everything else the horizontal layer looks for
+  (SBOM, VPAT/accessibility conformance, AI transparency, dated subprocessor table, data-residency
+  commitment, transparency report, trust center) is absent. An empty-but-for-DSR result is the expected
+  measurement for a company this size.
+signals:
+  data_subject_request:
+    present: true
+    type: DataSubjectRequest
+    detail: >-
+      /privacy enumerates GDPR rights (access, rectification, erasure, restriction, portability, objection,
+      withdraw consent) and gives a dedicated request contact (privacy@geoloods.io).
+    source: https://geoloods.io/privacy
+    checked: '2026-09-20'
+below_bar:
+- signal: subprocessors
+  observed: >-
+    /privacy names third parties in prose ("Payment processors (Mollie), hosting providers, and email
+    service providers"), but there is no dated subprocessor TABLE. Below the substance bar; no Subprocessors
+    pointer emitted.
+  source: https://geoloods.io/privacy
+- signal: data_residency
+  observed: >-
+    /privacy states data "may be transferred to and maintained on servers located outside of your country"
+    but names no region or residency commitment. Not a data-residency guarantee; no DataResidency pointer.
+  source: https://geoloods.io/privacy
+retention_disclosed:
+  note: >-
+    Not a canonical signal type, recorded for completeness. /privacy states retention: account data until
+    deletion; API logs 90 days; transaction records 7 years (legal requirement).
+  source: https://geoloods.io/privacy
+absent:
+- sbom
+- support_lifetime
+- accessibility_conformance
+- training_data_summary
+- ai_transparency
+- global_privacy_control
+- incident_notification
+- age_assurance
+- notice_and_action
+- transparency_report
+- exit_assistance
+- dpa
+notes:
+- No SBOM harvested (search-only rule; none published).
+- global_privacy_control NOT tested by sending a Sec-GPC header; no published GPC-honored statement exists, so recorded absent.

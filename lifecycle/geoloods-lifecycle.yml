@@ -1,0 +1,43 @@
+generated: '2026-09-20'
+method: searched
+source: >-
+  https://geoloods.io/openapi.json + https://geoloods.io/llms-full.txt + https://geoloods.io/terms +
+  live probe of https://status.softwareloods.nl/798067685
+versioning:
+  scheme: versioned-path
+  current_version: 2.0.0
+  base_url: https://api.geoloods.io/v2/
+  notes: >-
+    All endpoints served under a /v2/ path segment; the OpenAPI info.version is 2.0.0. An earlier round
+    observed a "2.0.0-interim" incomplete stub; the live spec is now a complete 2.0.0 (6 operations). No
+    documented policy for how future major versions are introduced or how long /v2 will be supported.
+status_page:
+  url: https://status.softwareloods.nl/798067685
+  probed:
+  - url: https://status.softwareloods.nl/798067685
+    status: 200
+    checked: '2026-09-20'
+  note: >-
+    Status page is hosted on softwareloods.nl (the operator's parent/sibling brand; maintainer is Sjoerd,
+    support@geoloods.io). Linked from llms-full.txt. Health endpoint GET https://api.geoloods.io/health
+    returns {"alive":true} (200, no auth).
+deprecation:
+  policy_documented: false
+  deprecated_operations: []
+  notes: >-
+    No public deprecation / sunset (RFC 8594) policy located; no operation in the OpenAPI carries
+    deprecated:true. No Deprecation pointer emitted.
+sla:
+  documented: false
+  notes: No uptime/SLA commitment published. A public status page exists but states no SLA target.
+terms:
+  url: https://geoloods.io/terms
+  probed:
+  - url: https://geoloods.io/terms
+    status: 200
+    checked: '2026-09-20'
+roadmap:
+  published: false
+changelog:
+  published: false
+  notes: No dated changelog found on the docs host or elsewhere.

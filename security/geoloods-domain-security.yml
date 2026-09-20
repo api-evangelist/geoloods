@@ -1,0 +1,20 @@
+generated: '2026-09-20'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: geoloods.io
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov 14 09:01:32 2026 GMT
+  hsts: false
+- host: api.geoloods.io
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov 14 08:58:20 2026 GMT
+  hsts: null
+domains:
+- domain: geoloods.io
+  dnssec: true
+  caa: []
+  spf: true
+  dmarc: false

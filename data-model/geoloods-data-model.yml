@@ -1,0 +1,52 @@
+generated: '2026-09-20'
+method: derived
+source: >-
+  Derived from openapi/geoloods-openapi.json (Location, Country-shaped, AgentSignupResponse schemas)
+  plus the richer field list in https://geoloods.io/llms-full.txt (Search and Countries sections). The
+  data core is a GeoNames-backed gazetteer: named places keyed by Geonameid, each carrying a country and
+  admin-area context.
+docs: https://geoloods.io/llms-full.txt
+notation: >-
+  Relationships use has_one / has_many / belongs_to with the reference field name in `via`; direction is
+  from the entity that owns the reference field. Places are keyed by the GeoNames integer id (Geonameid);
+  countries are keyed by ISO 3166-1 alpha-2 code.
+identifiers:
+  place: {key: Geonameid, type: integer, scheme: GeoNames geonameid}
+  country: {key: code, type: string, scheme: ISO 3166-1 alpha-2}
+entities:
+- name: Location
+  key: Geonameid
+  schema: Location
+  domain: core
+  description: >-
+    A named gazetteer place (city, town, village, park, landmark, admin area). Fields: Geonameid, Name,
+    Latitude, Longitude, _featureCode (GeoNames class, e.g. PPLC), CountryCode, CountryName, CountryFlag,
+    CurrencyCode, CurrencyName, Admin1Name, Admin2Name, Population, Elevation, Dem, Timezone,
+    ModificationDate. Returned by search, geocode, nearby and bbox.
+- name: Country
+  key: code
+  domain: core
+  description: >-
+    A country record from /v2/countries. Fields: code (ISO 3166-1 alpha-2), name, iso3, iso_numeric,
+    capital, area, population, continent, tld, currency_code, currency_name.
+- name: AgentKey
+  schema: AgentSignupResponse
+  domain: identity
+  description: >-
+    A trial API key minted by POST /v2/agent/signup. Fields: api_key (gl_agent_* prefix), quota, remaining,
+    expires_at, ttl_seconds. Ephemeral (12h TTL); one active key per client IP.
+relationships:
+- {from: Location, to: Country, kind: belongs_to, via: CountryCode}
+- {from: Country, to: Location, kind: has_many, via: 'places within the country (CountryCode match)'}
+interchange_hubs: [Location, Country]
+notes:
+- >-
+  Location carries denormalized country context (CountryName, CountryFlag, CurrencyCode, CurrencyName)
+  inline, so most callers never need the separate /countries lookup; Country is the authoritative
+  reference for full country metadata.
+- >-
+  Admin1Name / Admin2Name embed administrative hierarchy as denormalized strings rather than as separate
+  addressable entities — there is no /admin or /region endpoint.
+- >-
+  Scope is named places only: no street, address, or venue entities (hotels appear only as gazetteer
+  features via /nearby or filter=simple).

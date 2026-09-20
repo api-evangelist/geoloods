@@ -1,0 +1,75 @@
+overlay: 1.0.0
+info:
+  title: Geoloods OpenAPI enhancements
+  version: 1.0.0
+extends: ../openapi/geoloods-openapi.json
+x-provenance:
+  generated: '2026-09-20'
+  method: generated
+  source: >-
+    Enhancements grounded in https://geoloods.io/llms-full.txt, which documents Location fields and query
+    parameters that the published openapi.json (2.0.0) omits. This overlay records those documented-but-
+    unspecced details without mutating the original spec. No invented fields — every addition is quoted in
+    llms-full.txt.
+actions:
+- target: $.components.schemas.Location.properties
+  description: Add the richer Location fields documented in llms-full.txt but absent from the spec schema.
+  update:
+    _featureCode:
+      type: string
+      description: GeoNames feature code (e.g. PPLC = capital of a political entity).
+    CountryFlag:
+      type: string
+      description: Emoji flag for the country.
+    CurrencyCode:
+      type: string
+      description: ISO 4217 currency code (e.g. NOK).
+    CurrencyName:
+      type: string
+      description: Currency name.
+    Admin1Name:
+      type: string
+      description: First-level administrative area name.
+    Admin2Name:
+      type: string
+      description: Second-level administrative area name.
+    Population:
+      type: integer
+      description: Population of the place.
+    Elevation:
+      type: integer
+      description: Elevation in metres.
+    Dem:
+      type: integer
+      description: Digital elevation model value.
+    ModificationDate:
+      type: string
+      format: date
+      description: Last modification date of the gazetteer record.
+- target: $.paths['/geocode'].get.parameters
+  description: Add the `results` parameter documented in llms-full.txt for reverse geocode.
+  update:
+    name: results
+    in: query
+    required: false
+    description: Maximum number of results to return.
+    schema:
+      type: integer
+- target: $.paths['/nearby'].get.parameters
+  description: Add the `limit` and `lang` parameters documented in llms-full.txt for nearby.
+  update:
+    name: limit
+    in: query
+    required: false
+    description: Maximum number of results to return.
+    schema:
+      type: integer
+- target: $.paths['/bbox'].get.parameters
+  description: Add the `limit` parameter documented in llms-full.txt for bbox.
+  update:
+    name: limit
+    in: query
+    required: false
+    description: Maximum number of results to return.
+    schema:
+      type: integer

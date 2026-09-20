@@ -1,0 +1,66 @@
+generated: '2026-09-20'
+method: searched
+source: https://geoloods.io/llms-full.txt + https://geoloods.io/pricing + https://geoloods.io/openapi.json
+checked: '2026-09-20'
+summary: >-
+  Rate limiting is quota-based per API key, tied to the plan's monthly request allowance, and signalled at
+  runtime with the RateLimit header family. The OpenAPI declares X-RateLimit-Limit / X-RateLimit-Remaining
+  / X-RateLimit-Reset on every read response; llms-full.txt documents the same three by exact name. The
+  agent trial key adds a distinct short-window quota.
+limit_count: 4
+scopes:
+- scope: per-key
+  surface: authenticated read endpoints (search, geocode, nearby, bbox, countries)
+  window: monthly
+  unit: requests
+  tiers:
+    Free: 1000
+    Pro: 50000
+    Scale: 1000000
+  overage:
+    Pro: EUR 0.09 / 1,000 requests
+    Scale: EUR 0.049 / 1,000 requests
+  status_on_exhaustion: 429
+  headers:
+  - name: X-RateLimit-Limit
+    meaning: Request quota for the current window.
+  - name: X-RateLimit-Remaining
+    meaning: Requests remaining in the current window.
+  - name: X-RateLimit-Reset
+    meaning: Unix timestamp (seconds) when the current window resets.
+  source: https://geoloods.io/llms-full.txt
+- scope: per-key (agent trial)
+  surface: gl_agent_* trial keys from POST /v2/agent/signup
+  window: 12 hours (ttl_seconds 43200)
+  limit: 1000
+  unit: calls
+  status_on_exhaustion: 429
+  note: One active agent key per client IP; expires after 12h, then a human plan is required.
+  source: https://geoloods.io/llms-full.txt
+- scope: per-ip (signup)
+  surface: POST /v2/agent/signup
+  window: rolling
+  unit: signup attempts
+  status_on_exhaustion: 429
+  headers:
+  - name: Retry-After
+    meaning: Seconds until another signup may succeed (equals retry_after_seconds in the 429 body).
+  note: A second signup while a key is active returns 429 with the existing key's expires_at rather than minting a new key.
+  source: https://geoloods.io/openapi.json
+bbox_ceiling:
+  operation: searchBbox
+  ceiling: 10 degrees per side
+  source: https://geoloods.io/llms-full.txt
+nearby_ceiling:
+  operation: searchNearby
+  radius_km: {default: 10, min: 0.1, max: 100}
+  source: https://geoloods.io/llms-full.txt
+evidence:
+- url: https://api.geoloods.io/search
+  status: 401
+  observed: '{"error":"Missing API key..."} — read endpoints are key-gated; rate-limit headers not observable anonymously'
+  checked: '2026-09-20'
+cross_links:
+  plans: plans/geoloods-plans-pricing.yml
+  conventions: conventions/geoloods-conventions.yml
+  errors: errors/geoloods-problem-types.yml

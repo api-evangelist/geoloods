@@ -1,0 +1,57 @@
+generated: '2026-09-20'
+method: derived
+format: json-error-envelope
+source: >-
+  Derived from the 4xx/5xx responses declared in openapi/geoloods-openapi.json (OpenAPI 3.0.3) and
+  corroborated against https://geoloods.io/llms-full.txt (Auth + Agent signup sections). The API does
+  NOT use RFC 9457 application/problem+json; every error is application/json with a flat {"error": string}
+  body (the Error schema), except the 429 on /agent/signup which carries additional structured fields.
+rfc9457: false
+envelope:
+  media_type: application/json
+  default_shape: '{ "error": string }'
+  note: >-
+    The Error schema is a single required `error` string. The 429 from POST /v2/agent/signup extends
+    this with `retry_after_seconds` and `expires_at` and also sets a Retry-After header.
+problems:
+- status: 400
+  title: Bad Request
+  media_type: application/json
+  schema: Error
+  meaning: Invalid JSON body, or a field exceeds its max length (agent max 64, purpose max 200).
+  remediation: Send valid JSON; keep agent/purpose within length limits.
+  declared_on: agentSignup
+- status: 401
+  title: Unauthorized
+  media_type: application/json
+  schema: Error
+  meaning: >-
+    Missing or invalid API key. Observed bodies: {"error":"Missing API key. Provide via X-API-Key
+    header or api_key query param."} and {"error":"Invalid API key"}.
+  remediation: Send a valid key via the X-API-Key header or api_key query parameter.
+  declared_on: [searchPlaces, reverseGeocode, searchNearby, searchBbox, listCountries]
+- status: 429
+  title: Too Many Requests / Active Key Exists
+  media_type: application/json
+  schema: AgentSignupRateLimit
+  meaning: >-
+    On /agent/signup: signup rate limit hit, or an active agent key already exists for this client IP.
+    Body includes error, retry_after_seconds and expires_at; the existing secret is not re-revealed.
+    On authenticated endpoints, plan/rate-limit exhaustion is signalled by X-RateLimit-* headers (see
+    rate-limits/geoloods-rate-limits.yml).
+  remediation: Wait retry_after_seconds (also sent as Retry-After) before retrying; reuse the existing key.
+  declared_on: agentSignup
+- status: 503
+  title: Service Unavailable
+  media_type: application/json
+  schema: Error
+  meaning: Capacity or maintenance on /agent/signup.
+  remediation: Retry after a short backoff.
+  declared_on: agentSignup
+notes:
+- >-
+  Clients must NOT parse these as RFC 9457 problem documents. Discriminate on the flat `error` string
+  and, for signup 429s, on the presence of retry_after_seconds / expires_at.
+- >-
+  Live 401 confirmed by probe of https://api.geoloods.io/search (2026-09-20): 81-byte
+  {"error":"Missing API key..."} JSON.

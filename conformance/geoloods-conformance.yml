@@ -1,0 +1,55 @@
+generated: '2026-09-20'
+method: derived
+source: >-
+  Derived from openapi/geoloods-openapi.json (OpenAPI 3.0.3) and corroborated against
+  https://geoloods.io/llms-full.txt. Cross-cutting and domain identifier standards asserted only where
+  the contract or the published agent docs carry the evidence.
+standards:
+- id: openapi-3.0
+  conforms: true
+  evidence: >-
+    Provider serves a valid OpenAPI 3.0.3 document at https://geoloods.io/openapi.json (200, 20,714
+    bytes, 6 paths / 6 operations), captured to openapi/geoloods-openapi.json.
+- id: iso3166-1-alpha-2
+  conforms: true
+  evidence: >-
+    Location objects carry CountryCode (e.g. "NO"); the /v2/countries object documents `code`
+    (ISO 3166-1 alpha-2), `iso3`, and `iso_numeric`. Source: llms-full.txt Countries section.
+- id: iso4217-currency
+  conforms: true
+  evidence: >-
+    Location objects carry CurrencyCode (e.g. "NOK") and CurrencyName; countries carry currency_code /
+    currency_name. Source: llms-full.txt Search + Countries sections.
+- id: iana-timezone-database
+  conforms: true
+  evidence: >-
+    Location objects carry a Timezone field using IANA tz identifiers (e.g. "Europe/Oslo"). Source:
+    openapi Location schema + llms-full.txt example.
+- id: geonames-gazetteer
+  conforms: true
+  evidence: >-
+    Location objects are keyed by Geonameid (e.g. 3143244) and carry GeoNames _featureCode values
+    (e.g. PPLC), i.e. the API is built on the GeoNames gazetteer data model and feature-code taxonomy.
+    This is a de-facto domain identifier scheme for named-place data, not a formally scored domain
+    standard. Source: openapi Location schema + llms-full.txt Search example.
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: >-
+    Errors are returned as application/json with a flat {"error": string} envelope, not
+    application/problem+json. See errors/geoloods-problem-types.yml.
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: No Deprecation/Sunset headers or deprecation policy documented; no operation marked deprecated.
+- id: oauth2
+  conforms: false
+  evidence: Authentication is apiKey only (X-API-Key header or api_key query). No OAuth2 securityScheme.
+- id: rfc9116-security-txt
+  conforms: false
+  evidence: No /.well-known/security.txt served on any host (see well-known/geoloods-well-known.yml).
+domain_standard:
+  present: false
+  note: >-
+    The gazetteer/place-search market has no formal buyer-facing interchange standard of the kind the
+    Kin Score domain_standard_conformance award scores (SCIM/OData/OpenRTB/HL7/etc.). The API's reliance
+    on GeoNames identifiers (recorded above) is the nearest signal but is a data-model lineage, not a
+    declared conformance. Reward-only dimension left unfilled by design — no conformance invented.

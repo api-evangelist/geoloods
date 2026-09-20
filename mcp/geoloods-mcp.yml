@@ -1,0 +1,86 @@
+generated: '2026-09-20'
+method: derived
+status: candidate
+source: >-
+  Derived from openapi/geoloods-openapi.json (OpenAPI 3.0.3, 6 operations). No official hosted or
+  local MCP server was found: mcp.geoloods.io does not resolve (connection refused), api.geoloods.io/mcp
+  returns the blanket API-key 401 (the same catch-all as every other path — not a real MCP endpoint),
+  and neither the docs, llms.txt, llms-full.txt, npm, PyPI nor a GitHub org name an MCP server. This is
+  a CANDIDATE tool list only, mapping the read operations an MCP server would expose. Nobody ships a
+  server today.
+searched:
+  hosts_probed:
+  - url: https://mcp.geoloods.io/
+    result: connection refused (no such host)
+  - url: https://api.geoloods.io/mcp
+    method: POST tools/list
+    status: 401
+    body: '{"error":"Missing API key. Provide via X-API-Key header or api_key query param."}'
+    verdict: blanket auth catch-all, not an MCP endpoint
+  registries_checked: [npm, PyPI, crates.io, RubyGems, GitHub org]
+  found: none
+deployment:
+  mode: none
+  auth: unknown
+  verified: derived
+  note: >-
+    No MCP server exists. mode:none records that this tool list is derived from the OpenAPI, not shipped
+    by the provider. Do NOT invent an endpoint URL. Note that the provider IS agent-aware by another
+    route: POST /v2/agent/signup mints an unauthenticated gl_agent_* trial key, and llms.txt / llms-full.txt
+    are published — but that is an llms.txt + machine-signup posture, not MCP.
+tool_count: 5
+tools:
+- name: search_places
+  category: search
+  rest: searchPlaces
+  description: Search named gazetteer places (city, town, village, park, landmark) by name.
+  inputSchema:
+    type: object
+    required: [query]
+    properties:
+      query: {type: string, description: 'Named place to search (e.g. Oslo). Best-effort name match; not streets/addresses/venues.'}
+      lang: {type: string, description: 'Language code for names (e.g. en, nl).'}
+- name: reverse_geocode
+  category: geocode
+  rest: reverseGeocode
+  description: Find a named place for coordinates. Default filter=smart prefers settlements, excludes HTL/RSRT/MALL.
+  inputSchema:
+    type: object
+    required: [lat, lng]
+    properties:
+      lat: {type: number, description: Latitude.}
+      lng: {type: number, description: Longitude.}
+      filter: {type: string, enum: [smart, simple], description: 'smart (default) settlement-preferring; simple opt-in nearest feature.'}
+- name: nearby_places
+  category: nearby
+  rest: searchNearby
+  description: Named places within a radius, sorted by distance (includes hotels/venues when wanted).
+  inputSchema:
+    type: object
+    required: [lat, lng]
+    properties:
+      lat: {type: number, description: Latitude.}
+      lng: {type: number, description: Longitude.}
+      radius_km: {type: number, description: 'Radius in km (default 10, range 0.1-100).'}
+- name: bbox_places
+  category: bbox
+  rest: searchBbox
+  description: Named places inside a bounding box (max 10 degrees on a side).
+  inputSchema:
+    type: object
+    required: [min_lat, max_lat, min_lng, max_lng]
+    properties:
+      min_lat: {type: number}
+      max_lat: {type: number}
+      min_lng: {type: number}
+      max_lng: {type: number}
+- name: list_countries
+  category: countries
+  rest: listCountries
+  description: List countries with ISO codes and metadata (code, name, iso3, capital, area, population, currency).
+  inputSchema:
+    type: object
+    properties: {}
+excluded:
+- operationId: agentSignup
+  reason: Onboarding/key-mint operation, not a data tool; belongs to the machine-signup flow, not the MCP tool surface.

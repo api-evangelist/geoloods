@@ -37,18 +37,73 @@ apis:
       - llms-txt
     properties:
       - type: OpenAPI
+        url: openapi/geoloods-openapi.json
+      - type: OpenAPI
         url: https://geoloods.io/openapi.json
       - type: Documentation
         url: https://geoloods.io/docs
       - type: LLMsTxt
+        url: llms/geoloods-llms.txt
+      - type: LLMsTxt
         url: https://geoloods.io/llms.txt
       - type: LLMsTxt
         url: https://geoloods.io/llms-full.txt
+      - type: Overlay
+        url: overlays/geoloods-openapi-overlay.yaml
+      - type: MCPServer
+        url: mcp/geoloods-mcp.yml
+      - type: Conventions
+        url: conventions/geoloods-conventions.yml
+      - type: DataModel
+        url: data-model/geoloods-data-model.yml
+      - type: ErrorCatalog
+        url: errors/geoloods-problem-types.yml
 maintainers:
   - FN: Sjoerd
-    url: mailto:sjoerd@geoloods.io
+    email: sjoerd@geoloods.io
+    url: https://geoloods.io
 generated:
   by: apis.io/add
   model: claude-opus-4-8
   confidence: 95
   at: '2026-09-20T12:49:58.126Z'
+common:
+- type: Website
+  url: https://geoloods.io
+- type: DeveloperPortal
+  url: https://geoloods.io/docs
+- type: Documentation
+  url: https://geoloods.io/docs
+- type: APIReference
+  url: https://geoloods.io/docs
+- type: Pricing
+  url: https://geoloods.io/pricing
+- type: SignUp
+  url: https://geoloods.io/auth
+- type: TermsOfService
+  url: https://geoloods.io/terms
+- type: PrivacyPolicy
+  url: https://geoloods.io/privacy
+- type: StatusPage
+  url: https://status.softwareloods.nl/798067685
+- type: Support
+  url: mailto:support@geoloods.io
+- type: DomainSecurity
+  url: security/geoloods-domain-security.yml
+- type: Authentication
+  url: authentication/geoloods-authentication.yml
+- type: Conformance
+  url: conformance/geoloods-conformance.yml
+- type: Lifecycle
+  url: lifecycle/geoloods-lifecycle.yml
+- type: RateLimits
+  url: rate-limits/geoloods-rate-limits.yml
+- type: Plans
+  url: plans/geoloods-plans-pricing.yml
+- type: AgentSkill
+  url: skills/_index.yml
+x-enrichment:
+  date: '2026-09-20'
+  status: enriched
+  artifacts_added: 16
+  pass: local-v3

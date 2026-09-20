@@ -1,0 +1,20 @@
+generated: '2026-09-20'
+method: generated
+source: >-
+  Packaged Agent Skills generated from openapi/geoloods-openapi.json (OpenAPI 3.0.3, captured 2026-09-20
+  from https://geoloods.io/openapi.json) and https://geoloods.io/llms-full.txt. Every step is grounded in
+  an operationId verified verbatim in the spec; cross-cutting rules cite ../authentication/, ../errors/,
+  ../conventions/, ../rate-limits/ and ../data-model/. No provider-published skills / AGENTS.md were found.
+skills:
+- file: geoloods-agent-signup-and-search.md
+  name: Sign up as an agent and search for a place
+  api: openapi/geoloods-openapi.json
+  operations: [agentSignup, searchPlaces]
+- file: geoloods-reverse-geocode-a-coordinate.md
+  name: Reverse geocode a coordinate
+  api: openapi/geoloods-openapi.json
+  operations: [reverseGeocode, searchNearby]
+- file: geoloods-places-in-an-area.md
+  name: List places in an area
+  api: openapi/geoloods-openapi.json
+  operations: [searchBbox, searchNearby, listCountries]

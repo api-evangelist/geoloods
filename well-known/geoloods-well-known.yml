@@ -1,0 +1,70 @@
+generated: '2026-09-20'
+method: probed
+source: live probes of /.well-known/ on Geoloods hosts
+summary: >-
+  No /.well-known/ document is served anywhere. geoloods.io answers HTTP 404 with the same 11 KB
+  SPA/404 HTML shell for every /.well-known/* path (a soft miss, not a document). api.geoloods.io
+  gates every path — including /.well-known/* — behind its API-key middleware, returning the 81-byte
+  "Missing API key" JSON 401 to any unauthenticated request, so those are UNREACHABLE, not confirmed
+  absent. No WellKnown pointer and no SecurityTxt pointer are emitted: every probe missed.
+pointer_basis: >-
+  No WellKnown pointer (no path returned a 200 carrying a real document on any host). No SecurityTxt
+  pointer (RFC 9116 unimplemented on every host).
+false_positive_watch: >-
+  geoloods.io returns 200-shaped HTML for its SPA routes but 404 for unknown paths including
+  /.well-known/*; none is a served metadata document. api.geoloods.io's 401 is a blanket auth gate,
+  not a per-path handler.
+hosts:
+- host: https://geoloods.io
+  documents:
+  - path: /.well-known/security.txt
+    status: 404
+  - path: /security.txt
+    status: 404
+  - path: /.well-known/openid-configuration
+    status: 404
+  - path: /.well-known/oauth-authorization-server
+    status: 404
+  - path: /.well-known/oauth-protected-resource
+    status: 404
+  - path: /.well-known/api-catalog
+    status: 404
+  - path: /.well-known/ai-plugin.json
+    status: 404
+  - path: /.well-known/agent-card.json
+    status: 404
+  - path: /.well-known/agent.json
+    status: 404
+  note: >-
+    Every path returns a 404 with an ~11 KB HTML SPA/404 shell. Recorded as misses, not documents.
+- host: https://api.geoloods.io
+  documents:
+  - path: /.well-known/security.txt
+    status: 401
+  - path: /.well-known/oauth-authorization-server
+    status: 401
+  - path: /.well-known/oauth-protected-resource
+    status: 401
+  - path: /.well-known/agent-card.json
+    status: 401
+  - path: /.well-known/agent.json
+    status: 401
+  note: >-
+    api.geoloods.io fronts every path (including /.well-known/*) with an API-key gate that returns
+    the 81-byte {"error":"Missing API key..."} 401 to unauthenticated requests. These are
+    "unreachable", not "confirmed absent".
+a2a:
+  agent_card_found: false
+  hosts_probed:
+  - geoloods.io
+  - www.geoloods.io
+  - api.geoloods.io
+  paths_probed:
+  - /.well-known/agent-card.json
+  - /.well-known/agent.json
+  checked: '2026-09-20'
+  result: >-
+    No A2A agent card on any host at either the canonical or the legacy path (404 SPA shell on
+    geoloods.io, 401 auth gate on api.geoloods.io). No a2a/ artifact and no AgentCard pointer are
+    written.
+checked: '2026-09-20'

@@ -1,0 +1,24 @@
+generated: '2026-09-20'
+method: derived
+source: openapi/geoloods-openapi.json
+summary:
+  types:
+  - apiKey
+  api_key_in:
+  - header
+  - query
+schemes:
+- name: ApiKeyHeader
+  type: apiKey
+  in: header
+  parameter: X-API-Key
+  description: Live API key header. Preferred form.
+  sources:
+  - openapi/geoloods-openapi.json
+- name: ApiKeyQuery
+  type: apiKey
+  in: query
+  parameter: api_key
+  description: Live API key query parameter. Alternative to X-API-Key.
+  sources:
+  - openapi/geoloods-openapi.json

@@ -1,0 +1,631 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Geoloods API",
+    "version": "2.0.0",
+    "description": "Gazetteer-only place search and reverse geocoding. Named places (cities, towns, villages, parks, landmarks) — not streets, addresses, or venues/cafés/hotels as first-class search. GET /v2/geocode default is filter=smart (settlement and admin place labels; HTL/RSRT/MALL excluded). filter=simple is opt-in nearest gazetteer feature (may return a hotel). Hotels and venues belong on /nearby. Live auth: X-API-Key header and/or api_key query. Live search: query=. Rate-limit headers: X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset.",
+    "contact": {
+      "email": "support@geoloods.io",
+      "url": "https://geoloods.io/docs"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.geoloods.io/v2/",
+      "description": "Production API"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Agent",
+      "description": "Machine signup"
+    },
+    {
+      "name": "Search",
+      "description": "Named-place search (gazetteer only; not streets, addresses, or venues)"
+    },
+    {
+      "name": "Geocode",
+      "description": "Reverse geocoding. Default filter=smart prefers settlements and excludes HTL/RSRT/MALL. filter=simple is opt-in nearest feature. Hotels via /nearby."
+    },
+    {
+      "name": "Nearby",
+      "description": "Named places within a radius, including hotels/venues when you want them"
+    },
+    {
+      "name": "Bbox",
+      "description": "Bounding box search"
+    },
+    {
+      "name": "Countries",
+      "description": "Country list"
+    }
+  ],
+  "security": [
+    { "ApiKeyHeader": [] },
+    { "ApiKeyQuery": [] }
+  ],
+  "paths": {
+    "/agent/signup": {
+      "post": {
+        "tags": ["Agent"],
+        "operationId": "agentSignup",
+        "summary": "Register an agent for an API key",
+        "description": "Unauthenticated machine signup. No browser, email, or existing key. Optional agent/purpose. One active agent key per client IP. Trial: 1000 calls / 12 hours (ttl_seconds 43200).",
+        "security": [],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AgentSignupRequest"
+              },
+              "examples": {
+                "empty": {
+                  "value": {}
+                },
+                "identified": {
+                  "value": {
+                    "agent": "your-agent",
+                    "purpose": "short intent"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Signup accepted. Returns a gl_agent_* trial key and expiry fields.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentSignupResponse"
+                },
+                "example": {
+                  "api_key": "gl_agent_…",
+                  "quota": 1000,
+                  "remaining": 1000,
+                  "expires_at": "2026-09-21T00:00:00.000Z",
+                  "ttl_seconds": 43200,
+                  "docs": "https://geoloods.io/llms-full.txt",
+                  "openapi": "https://geoloods.io/openapi.json"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid JSON or field too long",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "Signup rate limit, or an active agent key already exists for this client IP. Secret is not re-revealed.",
+            "headers": {
+              "Retry-After": {
+                "description": "Seconds until another signup may succeed (same value as retry_after_seconds).",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentSignupRateLimit"
+                },
+                "example": {
+                  "error": "An active agent key already exists for this client",
+                  "expires_at": "2026-09-21T00:43:23.064Z",
+                  "retry_after_seconds": 42642
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Capacity or maintenance",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/search": {
+      "get": {
+        "tags": ["Search"],
+        "operationId": "searchPlaces",
+        "summary": "Search named places",
+        "description": "Resolve a named place (city, town, village, park, landmark). Not streets, addresses, or venues/cafés/hotels as first-class search. Street-like or venue queries may return nothing or an unrelated named place. Live query parameter is `query` (example: GET /v2/search?query=Oslo). Returns a JSON array of location objects.",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "description": "Named place to search. Best-effort name match. Partial names may help for well-known settlements; do not expect street names, addresses, or venue/café/hotel queries to resolve.",
+            "schema": {
+              "type": "string",
+              "example": "Oslo"
+            }
+          },
+          {
+            "name": "lang",
+            "in": "query",
+            "required": false,
+            "description": "Language code for names (e.g. en, nl).",
+            "schema": {
+              "type": "string",
+              "example": "en"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching places",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Location"
+                  }
+                },
+                "example": [
+                  {
+                    "Geonameid": 3143244,
+                    "Name": "Oslo",
+                    "Latitude": 59.91273,
+                    "Longitude": 10.74609,
+                    "CountryCode": "NO",
+                    "CountryName": "Norway",
+                    "Timezone": "Europe/Oslo"
+                  }
+                ]
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/geocode": {
+      "get": {
+        "tags": ["Geocode"],
+        "operationId": "reverseGeocode",
+        "summary": "Reverse geocode coordinates",
+        "description": "Find a named place for coordinates. Default filter=smart prefers settlement and admin place labels and excludes HTL/RSRT/MALL. filter=simple is opt-in nearest gazetteer feature (may return a hotel). Hotels and venues as a radius query belong on GET /v2/nearby. See https://geoloods.io/llms-full.txt.",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double", "example": 52.370216 }
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double", "example": 4.895168 }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "required": false,
+            "description": "smart (default) = settlement-preferring; HTL/RSRT/MALL excluded. simple = opt-in nearest gazetteer feature (may be a hotel).",
+            "schema": {
+              "type": "string",
+              "enum": ["smart", "simple"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Named places. Default is settlement-preferring (filter=smart).",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Location"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nearby": {
+      "get": {
+        "tags": ["Nearby"],
+        "operationId": "searchNearby",
+        "summary": "Named places near coordinates",
+        "description": "Named places within a radius, sorted by distance. Use this for hotels and other gazetteer venues, or for “what’s around”. See https://geoloods.io/llms-full.txt.",
+        "parameters": [
+          {
+            "name": "lat",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double", "example": 59.9139 }
+          },
+          {
+            "name": "lng",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double", "example": 10.7522 }
+          },
+          {
+            "name": "radius_km",
+            "in": "query",
+            "required": false,
+            "description": "Radius in km (default 10, range 0.1–100).",
+            "schema": { "type": "number", "format": "double", "example": 50 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Named places in the radius",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Location"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/bbox": {
+      "get": {
+        "tags": ["Bbox"],
+        "operationId": "searchBbox",
+        "summary": "Places inside a bounding box",
+        "description": "Named places inside a rectangle. Max 10° on a side. See https://geoloods.io/llms-full.txt.",
+        "parameters": [
+          {
+            "name": "min_lat",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double" }
+          },
+          {
+            "name": "max_lat",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double" }
+          },
+          {
+            "name": "min_lng",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double" }
+          },
+          {
+            "name": "max_lng",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "number", "format": "double" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Places in the box",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Location"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/countries": {
+      "get": {
+        "tags": ["Countries"],
+        "operationId": "listCountries",
+        "summary": "List countries",
+        "description": "List countries with ISO codes and metadata. See https://geoloods.io/llms-full.txt.",
+        "responses": {
+          "200": {
+            "description": "Country list",
+            "headers": {
+              "X-RateLimit-Limit": {
+                "$ref": "#/components/headers/X-RateLimit-Limit"
+              },
+              "X-RateLimit-Remaining": {
+                "$ref": "#/components/headers/X-RateLimit-Remaining"
+              },
+              "X-RateLimit-Reset": {
+                "$ref": "#/components/headers/X-RateLimit-Reset"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": true
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid API key",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyHeader": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-Key",
+        "description": "Live API key header. Preferred form."
+      },
+      "ApiKeyQuery": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "api_key",
+        "description": "Live API key query parameter. Alternative to X-API-Key."
+      }
+    },
+    "headers": {
+      "X-RateLimit-Limit": {
+        "description": "Request quota for the current window.",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "X-RateLimit-Remaining": {
+        "description": "Requests remaining in the current window.",
+        "schema": {
+          "type": "integer"
+        }
+      },
+      "X-RateLimit-Reset": {
+        "description": "Unix timestamp (seconds) when the current window resets.",
+        "schema": {
+          "type": "integer"
+        }
+      }
+    },
+    "schemas": {
+      "AgentSignupRequest": {
+        "type": "object",
+        "description": "Optional identification. Empty object {} is valid. No email or API key required.",
+        "additionalProperties": false,
+        "properties": {
+          "agent": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Caller name.",
+            "example": "your-agent"
+          },
+          "purpose": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "Short intent.",
+            "example": "short intent"
+          }
+        }
+      },
+      "AgentSignupResponse": {
+        "type": "object",
+        "description": "Live 201 body. Required fields match api.geoloods.io. docs/openapi/base_url are convenience links when present.",
+        "additionalProperties": true,
+        "required": [
+          "api_key",
+          "quota",
+          "remaining",
+          "expires_at",
+          "ttl_seconds"
+        ],
+        "properties": {
+          "api_key": {
+            "type": "string",
+            "description": "Trial key. Prefix gl_agent_.",
+            "example": "gl_agent_…"
+          },
+          "quota": {
+            "type": "integer",
+            "description": "Billed API call quota for this key.",
+            "example": 1000
+          },
+          "remaining": {
+            "type": "integer",
+            "description": "Calls remaining at mint time.",
+            "example": 1000
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 UTC expiry. Server rejects the key after this instant."
+          },
+          "ttl_seconds": {
+            "type": "integer",
+            "description": "Lifetime in seconds from mint (43200 = 12 hours).",
+            "example": 43200
+          },
+          "base_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "Convenience API base URL when live returns it.",
+            "example": "https://api.geoloods.io/v2/"
+          },
+          "docs": {
+            "type": "string",
+            "format": "uri",
+            "description": "Convenience docs link when live returns it.",
+            "example": "https://geoloods.io/llms-full.txt"
+          },
+          "openapi": {
+            "type": "string",
+            "format": "uri",
+            "description": "Convenience OpenAPI link when live returns it.",
+            "example": "https://geoloods.io/openapi.json"
+          }
+        }
+      },
+      "AgentSignupRateLimit": {
+        "type": "object",
+        "description": "Live 429 body from POST /v2/agent/signup.",
+        "additionalProperties": true,
+        "required": [
+          "error",
+          "retry_after_seconds",
+          "expires_at"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "example": "An active agent key already exists for this client"
+          },
+          "retry_after_seconds": {
+            "type": "integer",
+            "description": "Seconds until another signup may succeed."
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "description": "ISO-8601 UTC expiry of the already-active agent key."
+          }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "description": "Named gazetteer place (city, town, village, park, landmark, admin area). Not a street address or venue. Field names match the live search-rs objects.",
+        "additionalProperties": true,
+        "properties": {
+          "Geonameid": { "type": "integer" },
+          "Name": { "type": "string" },
+          "Latitude": { "type": "number", "format": "double" },
+          "Longitude": { "type": "number", "format": "double" },
+          "CountryCode": { "type": "string" },
+          "CountryName": { "type": "string" },
+          "Timezone": { "type": "string" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        },
+        "required": ["error"]
+      }
+    }
+  }
+}

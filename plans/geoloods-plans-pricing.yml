@@ -1,0 +1,54 @@
+generated: '2026-09-20'
+method: searched
+source: https://geoloods.io/pricing
+checked: '2026-09-20'
+summary: >-
+  Geoloods publishes self-serve prices: a free tier and two paid monthly tiers (Pro EUR 9, Scale EUR 49,
+  both incl. 21% VAT) with published request quotas and per-1,000-request overage rates, plus a
+  contact-sales tier above 1M/month. All tiers expose the same five endpoints (search, reverse, nearby,
+  bbox, countries). Agents get a separate 12-hour trial via POST /v2/agent/signup before needing a plan.
+plan_count: 4
+prices_published: true
+currency: EUR
+billing_period: monthly
+public_signup_pricing: true
+plans:
+- name: Free
+  price: 0
+  currency: EUR
+  billing_period: monthly
+  included_quota: 1000 requests/month
+  overage: null
+  limits: {monthly_requests: 1000}
+  endpoints: [search, reverse, nearby, bbox, countries]
+- name: Pro
+  price: 9
+  currency: EUR
+  price_note: includes 21% VAT
+  billing_period: monthly
+  included_quota: 50000 requests/month
+  overage: EUR 0.09 / 1,000 requests
+  limits: {monthly_requests: 50000}
+  endpoints: [search, reverse, nearby, bbox, countries]
+- name: Scale
+  price: 49
+  currency: EUR
+  price_note: includes 21% VAT
+  billing_period: monthly
+  included_quota: 1000000 requests/month
+  overage: EUR 0.049 / 1,000 requests
+  limits: {monthly_requests: 1000000}
+  endpoints: [search, reverse, nearby, bbox, countries]
+- name: Enterprise / Volume
+  price: null
+  currency: null
+  billing_period: null
+  cta: contact sjoerd@geoloods.io
+  positioning: Above 1M/month or a different limit — custom pricing.
+  included_quota: null
+  overage: null
+  limits: null
+trial:
+  agent_trial: 'POST /v2/agent/signup issues a gl_agent_* key: 1,000 calls / 12 hours, one active key per client IP.'
+  source: https://geoloods.io/llms-full.txt
+payment_processor: Mollie (per /privacy)

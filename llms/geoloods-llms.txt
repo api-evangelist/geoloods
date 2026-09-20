@@ -1,0 +1,64 @@
+# Geoloods
+
+> Gazetteer of named places worldwide (cities, towns, villages, parks, landmarks). JSON over HTTPS. Base URL: https://api.geoloods.io/v2/
+
+Named places only. Not streets, street addresses, or venues (cafés, hotels) as first-class search. Street-like or venue queries may return nothing or an unrelated named place.
+
+Live auth: send `X-API-Key` and/or `api_key` as a query parameter. Document those forms first. Humans get a key at https://geoloods.io/auth. Agents: `POST /v2/agent/signup`. Trial keys are `gl_agent_*`: 1,000 calls / 12 hours. Then create a human account at https://geoloods.io/auth for Free (1,000/mo), Pro, or Scale. Not free forever.
+
+Live search uses `query=` (not `q=`). Example: `GET /v2/search?query=Oslo`
+
+Reverse `GET /v2/geocode` default is `filter=smart` (settlement and admin place labels; HTL/RSRT/MALL excluded). `filter=simple` is opt-in nearest gazetteer feature (may return a hotel). Hotels and venues belong on `GET /v2/nearby`.
+
+Rate-limit headers on API responses: `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`.
+
+## Agent signup
+
+No browser. No email. No key required to mint.
+
+POST https://api.geoloods.io/v2/agent/signup
+Content-Type: application/json
+
+Optional body: `{"agent":"your-agent","purpose":"short intent"}`. Empty body `{}` is fine.
+
+201 example:
+
+```
+{
+  "api_key": "gl_agent_…",
+  "quota": 1000,
+  "remaining": 1000,
+  "expires_at": "2026-09-21T00:00:00.000Z",
+  "ttl_seconds": 43200
+}
+```
+
+Then call search with `X-API-Key: <api_key>`.
+
+```
+curl -sS -X POST https://api.geoloods.io/v2/agent/signup \
+  -H 'Content-Type: application/json' -d '{}'
+
+curl -sS 'https://api.geoloods.io/v2/search?query=Oslo' \
+  -H "X-API-Key: gl_agent_…"
+```
+
+Errors: `400` invalid JSON / field too long; `429` rate limit or an active agent key already exists for this client IP (`retry_after_seconds`, `expires_at`).
+
+One active agent key per client IP. Trial is not free forever — after expiry get a human key at https://geoloods.io/auth.
+
+This file is the short index. Full machine docs: https://geoloods.io/llms-full.txt. OpenAPI: https://geoloods.io/openapi.json. Human HTML docs: https://geoloods.io/docs.
+
+## Docs
+
+- [Full agent docs](https://geoloods.io/llms-full.txt): Auth, endpoints, examples, rate-limit headers
+- [OpenAPI](https://geoloods.io/openapi.json): Machine spec for `/agent/signup`, `/search`, `/geocode`, `/nearby`, `/bbox`, `/countries`
+- [Human API docs](https://geoloods.io/docs): HTML reference
+- [Playground](https://geoloods.io/playground): Browser try-it for search and reverse
+
+## Optional
+
+- [Pricing](https://geoloods.io/pricing)
+- [Human signup](https://geoloods.io/auth)
+- [Terms](https://geoloods.io/terms)
+- [Privacy](https://geoloods.io/privacy)

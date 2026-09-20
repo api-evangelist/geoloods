@@ -1,0 +1,81 @@
+generated: '2026-09-20'
+method: searched
+source: >-
+  https://geoloods.io/llms-full.txt + https://geoloods.io/openapi.json. Cross-cutting request/response
+  semantics for the Geoloods REST API, captured from the published agent docs and the OpenAPI.
+summary: >-
+  A small, read-mostly gazetteer REST API. Five authenticated read GETs (search, geocode, nearby, bbox,
+  countries) plus one unauthenticated write (POST /v2/agent/signup) that mints an auto-expiring trial key.
+  API-key auth, plain JSON array responses, per-window rate-limit headers, flat {error} envelope.
+authentication:
+  styles: [api_key_header, api_key_query]
+  api_key_header: X-API-Key
+  api_key_query: api_key
+  agent_signup: 'POST /v2/agent/signup mints an unauthenticated gl_agent_* trial key (1000 calls / 12h).'
+  see: authentication/geoloods-authentication.yml
+query_interfaces:
+- style: rest
+  base_url: https://api.geoloods.io/v2/
+response_shape:
+  style: bare-array
+  notes: >-
+    Read endpoints return a bare JSON array of Location objects (not a wrapped {results:[...]} envelope).
+    /countries returns a bare array of country objects. The site playground proxy /api/playground/geocode?q=
+    is site-only and NOT the API (the API's search parameter is `query`, not `q`).
+pagination:
+  style: limit-based
+  documented_params:
+    search: [query, lang]
+    geocode: [lat, lng, filter, results, lang]
+    nearby: [lat, lng, radius_km, limit, lang]
+    bbox: [min_lat, max_lat, min_lng, max_lng, limit, lang]
+  notes: >-
+    No cursor/offset pagination. Result-set size is bounded per operation: nearby/bbox accept `limit`,
+    geocode accepts `results`; bbox is capped at 10 degrees per side; nearby radius_km ranges 0.1-100
+    (default 10). Source: llms-full.txt.
+versioning:
+  scheme: versioned-path
+  current: 2.0.0
+  see: lifecycle/geoloods-lifecycle.yml
+error_envelope:
+  media_type: application/json
+  rfc9457: false
+  shape: '{ "error": string } (signup 429 adds retry_after_seconds + expires_at)'
+  see: errors/geoloods-problem-types.yml
+rate_limit_signaling:
+  headers: [X-RateLimit-Limit, X-RateLimit-Remaining, X-RateLimit-Reset]
+  reset_format: unix timestamp (seconds)
+  status_on_exhaustion: 429
+  retry_after: 'served on POST /v2/agent/signup 429 (Retry-After); not documented on read endpoints'
+  see: rate-limits/geoloods-rate-limits.yml
+idempotency:
+  documented: false
+  header: null
+  coverage: none
+  notes: >-
+    No Idempotency-Key mechanism is documented and none appears in the OpenAPI. The read surface is safe
+    to retry (GETs are naturally idempotent). The one write, POST /v2/agent/signup, has no replay-safety
+    header: it is instead IP-scoped (one active agent key per client IP) so a repeat within the trial
+    window returns 429 with the existing key's expiry rather than minting a second key — a de-facto guard,
+    not a client-controllable Idempotency-Key. No `Idempotency` pointer is emitted; the agent-readiness
+    idempotency dimension is a genuine none, not a missing pointer.
+reversibility:
+  state: na
+  notes: >-
+    The data surface is read-only (search/geocode/nearby/bbox/countries mutate nothing). The only write is
+    POST /v2/agent/signup, which mints a trial key that AUTO-EXPIRES after ttl_seconds 43200 (12h); there
+    is no documented key-revocation/undo endpoint, and nothing user-owned is created that would need
+    reversing. reversibility, dry_run and idempotency are therefore `na` for this provider's data surface.
+dry_run_mode:
+  supported: false
+  state: na
+  notes: Read-only data surface; no mutating operation to rehearse.
+request_tracing:
+  supported: false
+  notes: No request-id / trace header documented or observed on unauthenticated responses.
+cross_links:
+  authentication: authentication/geoloods-authentication.yml
+  errors: errors/geoloods-problem-types.yml
+  lifecycle: lifecycle/geoloods-lifecycle.yml
+  rate_limits: rate-limits/geoloods-rate-limits.yml
+  data_model: data-model/geoloods-data-model.yml
