@@ -8,6 +8,16 @@ created: '2026-09-20'
 modified: '2026-09-20'
 specificationVersion: '0.21'
 tags:
+  - Geocoding
+  - Place Search
+  - Location
+  - Coordinates
+  - Mapping
+  - Geospatial
+  - Agents
+  - OpenAPI
+  - llms-txt
+tags_raw:
   - geocoding
   - place-search
   - location
@@ -26,6 +36,16 @@ apis:
     humanURL: https://geoloods.io/docs
     baseURL: https://api.geoloods.io/v2/
     tags:
+      - Geocoding
+      - Place Search
+      - Location
+      - Coordinates
+      - Mapping
+      - Geospatial
+      - Agents
+      - OpenAPI
+      - llms-txt
+    tags_raw:
       - geocoding
       - place-search
       - location
