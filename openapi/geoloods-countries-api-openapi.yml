@@ -1,0 +1,81 @@
+openapi: 3.2.0
+info:
+  title: Geoloods Countries API
+  version: 2.0.0
+  description: Gazetteer-only place search and reverse geocoding.
+  contact:
+    email: support@geoloods.io
+    url: https://geoloods.io/docs
+servers:
+- url: https://api.geoloods.io/v2/
+  description: Production API
+security:
+- ApiKeyHeader: []
+- ApiKeyQuery: []
+tags:
+- name: Countries
+  description: Country list
+paths:
+  /countries:
+    get:
+      tags:
+      - Countries
+      operationId: listCountries
+      summary: List countries
+      description: List countries with ISO codes and metadata. See https://geoloods.io/llms-full.txt.
+      responses:
+        '200':
+          description: Country list
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  additionalProperties: true
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  headers:
+    X-RateLimit-Limit:
+      description: Request quota for the current window.
+      schema:
+        type: integer
+    X-RateLimit-Reset:
+      description: Unix timestamp (seconds) when the current window resets.
+      schema:
+        type: integer
+    X-RateLimit-Remaining:
+      description: Requests remaining in the current window.
+      schema:
+        type: integer
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Live API key header. Preferred form.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+      description: Live API key query parameter. Alternative to X-API-Key.

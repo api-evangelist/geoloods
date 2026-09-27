@@ -1,0 +1,124 @@
+openapi: 3.2.0
+info:
+  title: Geoloods Search API
+  version: 2.0.0
+  description: Gazetteer-only place search and reverse geocoding.
+  contact:
+    email: support@geoloods.io
+    url: https://geoloods.io/docs
+servers:
+- url: https://api.geoloods.io/v2/
+  description: Production API
+security:
+- ApiKeyHeader: []
+- ApiKeyQuery: []
+tags:
+- name: Search
+  description: Named-place search (gazetteer only; not streets, addresses, or venues)
+paths:
+  /search:
+    get:
+      tags:
+      - Search
+      operationId: searchPlaces
+      summary: Search named places
+      description: 'Resolve a named place (city, town, village, park, landmark). Not streets, addresses, or venues/cafés/hotels as first-class search. Street-like or venue queries may return nothing or an unrelated named place. Live query parameter is `query` (example: GET /v2/search?query=Oslo). Returns a JSON array of location objects.'
+      parameters:
+      - name: query
+        in: query
+        required: true
+        description: Named place to search. Best-effort name match. Partial names may help for well-known settlements; do not expect street names, addresses, or venue/café/hotel queries to resolve.
+        schema:
+          type: string
+          example: Oslo
+      - name: lang
+        in: query
+        required: false
+        description: Language code for names (e.g. en, nl).
+        schema:
+          type: string
+          example: en
+      responses:
+        '200':
+          description: Matching places
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+              example:
+              - Geonameid: 3143244
+                Name: Oslo
+                Latitude: 59.91273
+                Longitude: 10.74609
+                CountryCode: 'NO'
+                CountryName: Norway
+                Timezone: Europe/Oslo
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  headers:
+    X-RateLimit-Reset:
+      description: Unix timestamp (seconds) when the current window resets.
+      schema:
+        type: integer
+    X-RateLimit-Remaining:
+      description: Requests remaining in the current window.
+      schema:
+        type: integer
+    X-RateLimit-Limit:
+      description: Request quota for the current window.
+      schema:
+        type: integer
+  schemas:
+    Location:
+      type: object
+      description: Named gazetteer place (city, town, village, park, landmark, admin area). Not a street address or venue. Field names match the live search-rs objects.
+      additionalProperties: true
+      properties:
+        Geonameid:
+          type: integer
+        Name:
+          type: string
+        Latitude:
+          type: number
+          format: double
+        Longitude:
+          type: number
+          format: double
+        CountryCode:
+          type: string
+        CountryName:
+          type: string
+        Timezone:
+          type: string
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Live API key header. Preferred form.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+      description: Live API key query parameter. Alternative to X-API-Key.

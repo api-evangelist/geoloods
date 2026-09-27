@@ -1,0 +1,181 @@
+openapi: 3.2.0
+info:
+  title: Geoloods Agent API
+  version: 2.0.0
+  description: Gazetteer-only place search and reverse geocoding.
+  contact:
+    email: support@geoloods.io
+    url: https://geoloods.io/docs
+servers:
+- url: https://api.geoloods.io/v2/
+  description: Production API
+security:
+- ApiKeyHeader: []
+- ApiKeyQuery: []
+tags:
+- name: Agent
+  description: Machine signup
+paths:
+  /agent/signup:
+    post:
+      tags:
+      - Agent
+      operationId: agentSignup
+      summary: Register an agent for an API key
+      description: 'Unauthenticated machine signup. No browser, email, or existing key. Optional agent/purpose. One active agent key per client IP. Trial: 1000 calls / 12 hours (ttl_seconds 43200).'
+      security: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentSignupRequest'
+            examples:
+              empty:
+                value: {}
+              identified:
+                value:
+                  agent: your-agent
+                  purpose: short intent
+      responses:
+        '201':
+          description: Signup accepted. Returns a gl_agent_* trial key and expiry fields.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSignupResponse'
+              example:
+                api_key: gl_agent_…
+                quota: 1000
+                remaining: 1000
+                expires_at: '2026-09-21T00:00:00.000Z'
+                ttl_seconds: 43200
+                docs: https://geoloods.io/llms-full.txt
+                openapi: https://geoloods.io/openapi.json
+        '400':
+          description: Invalid JSON or field too long
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: Signup rate limit, or an active agent key already exists for this client IP. Secret is not re-revealed.
+          headers:
+            Retry-After:
+              description: Seconds until another signup may succeed (same value as retry_after_seconds).
+              schema:
+                type: integer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentSignupRateLimit'
+              example:
+                error: An active agent key already exists for this client
+                expires_at: '2026-09-21T00:43:23.064Z'
+                retry_after_seconds: 42642
+        '503':
+          description: Capacity or maintenance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    AgentSignupResponse:
+      type: object
+      description: Live 201 body. Required fields match api.geoloods.io. docs/openapi/base_url are convenience links when present.
+      additionalProperties: true
+      required:
+      - api_key
+      - quota
+      - remaining
+      - expires_at
+      - ttl_seconds
+      properties:
+        api_key:
+          type: string
+          description: Trial key. Prefix gl_agent_.
+          example: gl_agent_…
+        quota:
+          type: integer
+          description: Billed API call quota for this key.
+          example: 1000
+        remaining:
+          type: integer
+          description: Calls remaining at mint time.
+          example: 1000
+        expires_at:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC expiry. Server rejects the key after this instant.
+        ttl_seconds:
+          type: integer
+          description: Lifetime in seconds from mint (43200 = 12 hours).
+          example: 43200
+        base_url:
+          type: string
+          format: uri
+          description: Convenience API base URL when live returns it.
+          example: https://api.geoloods.io/v2/
+        docs:
+          type: string
+          format: uri
+          description: Convenience docs link when live returns it.
+          example: https://geoloods.io/llms-full.txt
+        openapi:
+          type: string
+          format: uri
+          description: Convenience OpenAPI link when live returns it.
+          example: https://geoloods.io/openapi.json
+    AgentSignupRateLimit:
+      type: object
+      description: Live 429 body from POST /v2/agent/signup.
+      additionalProperties: true
+      required:
+      - error
+      - retry_after_seconds
+      - expires_at
+      properties:
+        error:
+          type: string
+          example: An active agent key already exists for this client
+        retry_after_seconds:
+          type: integer
+          description: Seconds until another signup may succeed.
+        expires_at:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC expiry of the already-active agent key.
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
+    AgentSignupRequest:
+      type: object
+      description: Optional identification. Empty object {} is valid. No email or API key required.
+      additionalProperties: false
+      properties:
+        agent:
+          type: string
+          maxLength: 64
+          description: Caller name.
+          example: your-agent
+        purpose:
+          type: string
+          maxLength: 200
+          description: Short intent.
+          example: short intent
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Live API key header. Preferred form.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+      description: Live API key query parameter. Alternative to X-API-Key.

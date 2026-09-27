@@ -1,0 +1,125 @@
+openapi: 3.2.0
+info:
+  title: Geoloods Geocode API
+  version: 2.0.0
+  description: Gazetteer-only place search and reverse geocoding.
+  contact:
+    email: support@geoloods.io
+    url: https://geoloods.io/docs
+servers:
+- url: https://api.geoloods.io/v2/
+  description: Production API
+security:
+- ApiKeyHeader: []
+- ApiKeyQuery: []
+tags:
+- name: Geocode
+  description: Reverse geocoding. Default filter=smart prefers settlements and excludes HTL/RSRT/MALL. filter=simple is opt-in nearest feature. Hotels via /nearby.
+paths:
+  /geocode:
+    get:
+      tags:
+      - Geocode
+      operationId: reverseGeocode
+      summary: Reverse geocode coordinates
+      description: Find a named place for coordinates. Default filter=smart prefers settlement and admin place labels and excludes HTL/RSRT/MALL. filter=simple is opt-in nearest gazetteer feature (may return a hotel). Hotels and venues as a radius query belong on GET /v2/nearby. See https://geoloods.io/llms-full.txt.
+      parameters:
+      - name: lat
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 52.370216
+      - name: lng
+        in: query
+        required: true
+        schema:
+          type: number
+          format: double
+          example: 4.895168
+      - name: filter
+        in: query
+        required: false
+        description: smart (default) = settlement-preferring; HTL/RSRT/MALL excluded. simple = opt-in nearest gazetteer feature (may be a hotel).
+        schema:
+          type: string
+          enum:
+          - smart
+          - simple
+      responses:
+        '200':
+          description: Named places. Default is settlement-preferring (filter=smart).
+          headers:
+            X-RateLimit-Limit:
+              $ref: '#/components/headers/X-RateLimit-Limit'
+            X-RateLimit-Remaining:
+              $ref: '#/components/headers/X-RateLimit-Remaining'
+            X-RateLimit-Reset:
+              $ref: '#/components/headers/X-RateLimit-Reset'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Location'
+        '401':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  headers:
+    X-RateLimit-Reset:
+      description: Unix timestamp (seconds) when the current window resets.
+      schema:
+        type: integer
+    X-RateLimit-Remaining:
+      description: Requests remaining in the current window.
+      schema:
+        type: integer
+    X-RateLimit-Limit:
+      description: Request quota for the current window.
+      schema:
+        type: integer
+  schemas:
+    Location:
+      type: object
+      description: Named gazetteer place (city, town, village, park, landmark, admin area). Not a street address or venue. Field names match the live search-rs objects.
+      additionalProperties: true
+      properties:
+        Geonameid:
+          type: integer
+        Name:
+          type: string
+        Latitude:
+          type: number
+          format: double
+        Longitude:
+          type: number
+          format: double
+        CountryCode:
+          type: string
+        CountryName:
+          type: string
+        Timezone:
+          type: string
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
+  securitySchemes:
+    ApiKeyHeader:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Live API key header. Preferred form.
+    ApiKeyQuery:
+      type: apiKey
+      in: query
+      name: api_key
+      description: Live API key query parameter. Alternative to X-API-Key.
