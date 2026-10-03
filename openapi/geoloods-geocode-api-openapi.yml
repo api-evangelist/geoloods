@@ -84,6 +84,13 @@ components:
       schema:
         type: integer
   schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
     Location:
       type: object
       description: Named gazetteer place (city, town, village, park, landmark, admin area). Not a street address or venue. Field names match the live search-rs objects.
@@ -105,13 +112,6 @@ components:
           type: string
         Timezone:
           type: string
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-      required:
-      - error
   securitySchemes:
     ApiKeyHeader:
       type: apiKey

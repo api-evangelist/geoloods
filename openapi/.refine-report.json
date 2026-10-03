@@ -1,7 +1,7 @@
 {
   "provider": "geoloods",
   "sources": [
-    "geoloods-openapi.json"
+    "_original/geoloods-openapi.json"
   ],
   "outputs": [
     "geoloods-agent-api-openapi.yml",
@@ -11,14 +11,20 @@
     "geoloods-nearby-api-openapi.yml",
     "geoloods-search-api-openapi.yml"
   ],
-  "archived": [
-    "archived openapi/geoloods-openapi.json"
-  ],
+  "archived": [],
   "errors": [],
   "warnings": [],
   "notes": [
+    "sourced from openapi/_original/ (1 archived document(s)); previously refined output at the top level was skipped rather than re-split",
     "geoloods-openapi.json: upgraded openapi 3.0.3 -> OpenAPI 3.2.0",
-    "apis.yml register: written (+6 apis, 6 total)"
+    "apis.yml register: already-registered"
   ],
-  "skipped": []
+  "skipped": [
+    "geoloods-agent-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "geoloods-bbox-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "geoloods-countries-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "geoloods-geocode-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "geoloods-nearby-api-openapi.yml: previously refined output, superseded by openapi/_original/",
+    "geoloods-search-api-openapi.yml: previously refined output, superseded by openapi/_original/"
+  ]
 }
