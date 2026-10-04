@@ -34,6 +34,8 @@ apis:
   humanURL: https://geoloods.io/docs
   baseURL: https://api.geoloods.io/v2/
   tags:
+  - Agents
+  tags_raw:
   - Agent
   properties:
   - type: OpenAPI
@@ -184,6 +186,9 @@ generated:
   confidence: 95
   at: '2026-09-20T12:49:58.126Z'
 common:
+- type: CapabilityMap
+  url: capabilities/geoloods-capability-edges.yml
+  name: Geoloods Business Capability Map
 - type: Overlay
   url: overlays/geoloods-openapi-overlay.yaml
 - type: MCPServer
