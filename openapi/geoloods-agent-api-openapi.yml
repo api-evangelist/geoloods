@@ -81,40 +81,6 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   schemas:
-    AgentSignupRateLimit:
-      type: object
-      description: Live 429 body from POST /v2/agent/signup.
-      additionalProperties: true
-      required:
-      - error
-      - retry_after_seconds
-      - expires_at
-      properties:
-        error:
-          type: string
-          example: An active agent key already exists for this client
-        retry_after_seconds:
-          type: integer
-          description: Seconds until another signup may succeed.
-        expires_at:
-          type: string
-          format: date-time
-          description: ISO-8601 UTC expiry of the already-active agent key.
-    AgentSignupRequest:
-      type: object
-      description: Optional identification. Empty object {} is valid. No email or API key required.
-      additionalProperties: false
-      properties:
-        agent:
-          type: string
-          maxLength: 64
-          description: Caller name.
-          example: your-agent
-        purpose:
-          type: string
-          maxLength: 200
-          description: Short intent.
-          example: short intent
     AgentSignupResponse:
       type: object
       description: Live 201 body. Required fields match api.geoloods.io. docs/openapi/base_url are convenience links when present.
@@ -168,6 +134,40 @@ components:
           type: string
       required:
       - error
+    AgentSignupRateLimit:
+      type: object
+      description: Live 429 body from POST /v2/agent/signup.
+      additionalProperties: true
+      required:
+      - error
+      - retry_after_seconds
+      - expires_at
+      properties:
+        error:
+          type: string
+          example: An active agent key already exists for this client
+        retry_after_seconds:
+          type: integer
+          description: Seconds until another signup may succeed.
+        expires_at:
+          type: string
+          format: date-time
+          description: ISO-8601 UTC expiry of the already-active agent key.
+    AgentSignupRequest:
+      type: object
+      description: Optional identification. Empty object {} is valid. No email or API key required.
+      additionalProperties: false
+      properties:
+        agent:
+          type: string
+          maxLength: 64
+          description: Caller name.
+          example: your-agent
+        purpose:
+          type: string
+          maxLength: 200
+          description: Short intent.
+          example: short intent
   securitySchemes:
     ApiKeyHeader:
       type: apiKey

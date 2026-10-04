@@ -70,6 +70,10 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   headers:
+    X-RateLimit-Limit:
+      description: Request quota for the current window.
+      schema:
+        type: integer
     X-RateLimit-Reset:
       description: Unix timestamp (seconds) when the current window resets.
       schema:
@@ -78,18 +82,7 @@ components:
       description: Requests remaining in the current window.
       schema:
         type: integer
-    X-RateLimit-Limit:
-      description: Request quota for the current window.
-      schema:
-        type: integer
   schemas:
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-      required:
-      - error
     Location:
       type: object
       description: Named gazetteer place (city, town, village, park, landmark, admin area). Not a street address or venue. Field names match the live search-rs objects.
@@ -111,6 +104,13 @@ components:
           type: string
         Timezone:
           type: string
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
   securitySchemes:
     ApiKeyHeader:
       type: apiKey

@@ -48,16 +48,16 @@ paths:
                 $ref: '#/components/schemas/Error'
 components:
   headers:
+    X-RateLimit-Limit:
+      description: Request quota for the current window.
+      schema:
+        type: integer
     X-RateLimit-Reset:
       description: Unix timestamp (seconds) when the current window resets.
       schema:
         type: integer
     X-RateLimit-Remaining:
       description: Requests remaining in the current window.
-      schema:
-        type: integer
-    X-RateLimit-Limit:
-      description: Request quota for the current window.
       schema:
         type: integer
   schemas:
