@@ -5,7 +5,7 @@ description: >-
   population, and country metadata. Agent-aware with machine signup and llms.txt index.
 url: https://raw.githubusercontent.com/api-evangelist/geoloods/refs/heads/main/apis.yml
 created: '2026-09-20'
-modified: '2026-09-20'
+modified: '2026-10-06'
 specificationVersion: '0.21'
 tags:
   - Geocoding
@@ -186,6 +186,8 @@ generated:
   confidence: 95
   at: '2026-09-20T12:49:58.126Z'
 common:
+- url: https://geoloods.io/blog
+  type: Blog
 - type: CapabilityMap
   url: capabilities/geoloods-capability-edges.yml
   name: Geoloods Business Capability Map
