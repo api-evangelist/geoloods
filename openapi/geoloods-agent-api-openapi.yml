@@ -127,13 +127,6 @@ components:
           format: uri
           description: Convenience OpenAPI link when live returns it.
           example: https://geoloods.io/openapi.json
-    Error:
-      type: object
-      properties:
-        error:
-          type: string
-      required:
-      - error
     AgentSignupRateLimit:
       type: object
       description: Live 429 body from POST /v2/agent/signup.
@@ -153,6 +146,13 @@ components:
           type: string
           format: date-time
           description: ISO-8601 UTC expiry of the already-active agent key.
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+      - error
     AgentSignupRequest:
       type: object
       description: Optional identification. Empty object {} is valid. No email or API key required.
