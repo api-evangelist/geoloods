@@ -179,3 +179,9 @@ components:
       in: query
       name: api_key
       description: Live API key query parameter. Alternative to X-API-Key.
+x-provenance:
+  method: harvested
+  publisher: Geoloods
+  source: https://geoloods.io/openapi.json
+  note: split by refine-openapis from the provider's own published document, verified by fetch (openapi/_original/*.fetch.json);
+    stamped by stamp-openapi-provenance.py (roadmap#793)
