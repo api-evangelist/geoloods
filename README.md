@@ -1,4 +1,4 @@
-# geoloods
+# Geoloods
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -65,3 +65,122 @@
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
 A place-search and geocoding API that resolves named places (cities, towns, villages, parks, landmarks) to coordinates and rich location metadata over JSON/HTTPS. Covers 6.5M+ named places across 195 countries with coordinates, timezone, population, and country metadata. Agent-aware with machine signup and llms.txt index.
+
+**Areas:** Geocoding · Place Search · Location · Coordinates · Mapping · Geospatial · Agents · OpenAPI · llms-txt
+
+## Geoloods on APIs.io
+
+Everything profiled for Geoloods is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/geoloods/](https://apis.io/providers/geoloods/)** — or go straight to one of the APIs or properties below.
+
+### APIs (6)
+
+- [Geoloods Agent API](https://apis.io/apis/geoloods/geoloods-agent-api/) — Machine signup
+- [Geoloods Bbox API](https://apis.io/apis/geoloods/geoloods-bbox-api/) — Bounding box search
+- [Geoloods Countries API](https://apis.io/apis/geoloods/geoloods-countries-api/) — Country list
+- [Geoloods Geocode API](https://apis.io/apis/geoloods/geoloods-geocode-api/) — Reverse geocoding. Default filter=smart prefers settlements and excludes HTL/RSRT/MALL. filter=simple is opt-in nearest feature. Hotels via /nearby.
+- [Geoloods Nearby API](https://apis.io/apis/geoloods/geoloods-nearby-api/) — Named places within a radius, including hotels/venues when you want them
+- [Geoloods Search API](https://apis.io/apis/geoloods/geoloods-search-api/) — Named-place search (gazetteer only; not streets, addresses, or venues)
+
+### Published properties
+
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
+
+#### MCP servers (1)
+
+Model Context Protocol servers that expose the API to agents.
+
+- [geoloods-mcp.yml](https://apis.io/servers/geoloods/geoloods-mcp-yml/)
+
+#### Overlays (1)
+
+OpenAPI overlays, including conversational phrasing for each operation.
+
+- [Geoloods Openapi Overlay](https://apis.io/overlays/geoloods/geoloods-openapi-overlay/)
+
+#### Security (2)
+
+Authentication, trust centre, and vulnerability disclosure.
+
+- [Geoloods Authentication](https://apis.io/security/geoloods/geoloods-authentication/)
+- [Geoloods Domain Security](https://apis.io/security/geoloods/geoloods-domain-security/)
+
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Geoloods Plans Pricing](https://apis.io/plans/geoloods/geoloods-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Geoloods Rate Limits](https://apis.io/rate-limits/geoloods/geoloods-rate-limits/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
+- [Website](https://geoloods.io)
+- [Documentation](https://geoloods.io/docs)
+- [API reference](https://geoloods.io/docs)
+- [Pricing](https://geoloods.io/pricing)
+- [Sign up](https://geoloods.io/auth)
+- [Blog](https://geoloods.io/blog)
+- [Terms of service](https://geoloods.io/terms)
+- [Privacy policy](https://geoloods.io/privacy)
+- [Status](https://status.softwareloods.nl/798067685)
+
+## API Evangelist rating
+
+**Kin Score 47.2** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 69.6 |
+| Contract quality | 49.2 |
+| Contract governance | 4.5 |
+| Operational transparency | 15.8 |
+| Developer ergonomics | 47.0 |
+| Access clarity | 76.3 |
+
+**Agent readiness 30.3** — agent-ready
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | documented (partial credit) |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | verified |
+| OpenAPI Examples | partial |
+| Rate Limit Signal | verified |
+| Event Surface Described | — |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | — |
+| Operation Distinctiveness | na |
+
+**Regulatory alignment 24.5** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/geoloods/](https://apis.io/providers/geoloods/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Geoloods: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/geoloods/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
